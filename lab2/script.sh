@@ -4,7 +4,7 @@ ar rcs libReverseString.a reverse.o
 # Создание динамической библиотеки
 gcc -shared -o libDynamicReverseString.so reverse.o
 # Компиляция статической библиотеки
-gcc main.c mainStatic -L. -lReverseString
+gcc main.c -o mainStatic -L. -lReverseString
 # Компиляция динамической библиотеки 
 gcc main.c -o mainDynamic -L. -lDynamicReverseString -Wl,-rpath,.
 sudo apt -y install libcunit1 libcunit1-doc libcunit1-dev
