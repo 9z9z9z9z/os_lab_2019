@@ -1,8 +1,10 @@
 #include "revert_string.h"
+#include <stdio.h>
 
 void RevertString(char *str)
 {
-	int length = strlen(str);
+
+    int length = strlen(str);
     int start = 0;
     int end = length - 1;
 
@@ -16,5 +18,6 @@ void RevertString(char *str)
         start++;
         end--;
     }
+   printf("Programm is done");
 }
 
