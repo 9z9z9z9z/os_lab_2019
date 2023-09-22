@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 # Разделяем аргументы в массив
 IFS=$'\n' read -d '' -r -a arg_array < numbers.txt
 count=0
