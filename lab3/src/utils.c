@@ -42,10 +42,8 @@ void GenerateArray(int *array, unsigned int array_size, unsigned int seed) {
   for (int i = 0; i < array_size; ++i) {
     if (array != NULL) {
       array[i] = rand();
-      printf("%d ", array[i]);
     } else {
       printf("nullptr");
     }    
   }
-  printf("\n");
 }
