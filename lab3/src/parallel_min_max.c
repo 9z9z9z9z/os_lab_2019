@@ -9,7 +9,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
 #include <getopt.h>
 
 #include "find_min_max.h"
@@ -40,24 +39,17 @@ int main(int argc, char **argv) {
         switch (option_index) {
           case 0:
             seed = atoi(optarg);
-            // your code here
-            // error handling
             break;
           case 1:
             array_size = atoi(optarg);
-            // your code here
-            // error handling
             break;
           case 2:
             pnum = atoi(optarg);
-            // your code here
-            // error handling
             break;
           case 3:
             with_files = true;
             break;
-
-          defalut:
+          default:
             printf("Index %d is out of options\n", option_index);
         }
         break;
@@ -79,19 +71,30 @@ int main(int argc, char **argv) {
   }
 
   if (seed == -1 || array_size == -1 || pnum == -1) {
-    printf("Usage: %s --seed \"num\" --array_size \"num\" --pnum \"num\" \n",
+    printf("Usage: %s --seed \"num\" --array_size \"num\" --pnum \"num\"\n",
            argv[0]);
     return 1;
   }
 
   int *array = malloc(sizeof(int) * array_size);
   GenerateArray(array, array_size, seed);
+  struct MinMax min_max;
   int active_child_processes = 0;
+  int *pipefd = NULL; // File descriptor array for pipes
 
   struct timeval start_time;
   gettimeofday(&start_time, NULL);
 
   for (int i = 0; i < pnum; i++) {
+    if (!with_files) {
+      // Create pipes for communication between parent and child processes
+      pipefd = malloc(sizeof(int) * 2);
+      if (pipe(pipefd) == -1) {
+        perror("pipe");
+        return 1;
+      }
+    }
+
     pid_t child_pid = fork();
     if (child_pid >= 0) {
       // successful fork
@@ -100,43 +103,63 @@ int main(int argc, char **argv) {
         // child process
 
         // parallel somehow
+        struct MinMax local_min_max;
+        if (i < pnum - 1) {
+          local_min_max = GetMinMax(array, i * (array_size / pnum),
+                                    (i + 1) * (array_size / pnum));
+        } else {
+          // Handle the last chunk to include any remaining elements
+          local_min_max = GetMinMax(array, i * (array_size / pnum), array_size);
+        }
 
         if (with_files) {
-          // use files here
+          // Use files here
+          WriteMinMaxToFile("min_max_temp.txt", local_min_max);
         } else {
-          // use pipe here
+          // Use pipes here
+          close(pipefd[0]); // Close read end of the pipe
+          write(pipefd[1], &local_min_max, sizeof(struct MinMax));
+          close(pipefd[1]); // Close write end of the pipe
         }
+        free(array);
         return 0;
       }
-
     } else {
       printf("Fork failed!\n");
       return 1;
     }
   }
 
-  while (active_child_processes > 0) {
-    // your code here
-
-    active_child_processes -= 1;
-  }
-
-  struct MinMax min_max;
-  min_max.min = INT_MAX;
-  min_max.max = INT_MIN;
-
-  for (int i = 0; i < pnum; i++) {
-    int min = INT_MAX;
-    int max = INT_MIN;
-
-    if (with_files) {
-      // read from files
-    } else {
-      // read from pipes
+  if (with_files) {
+    // Wait for all child processes to complete
+    while (active_child_processes > 0) {
+      wait(NULL);
+      active_child_processes -= 1;
     }
 
-    if (min < min_max.min) min_max.min = min;
-    if (max > min_max.max) min_max.max = max;
+    // Read MinMax values from files and merge them
+    
+    min_max.min = INT_MAX;
+    min_max.max = INT_MIN;
+    for (int i = 0; i < pnum; i++) {
+      struct MinMax local_min_max;
+      ReadMinMaxFromFile("min_max_temp.txt", &local_min_max);
+      if (local_min_max.min < min_max.min) min_max.min = local_min_max.min;
+      if (local_min_max.max > min_max.max) min_max.max = local_min_max.max;
+    }
+  } else {
+    // Parent process: collect MinMax values from child processes using pipes
+    struct MinMax min_max;
+    min_max.min = INT_MAX;
+    min_max.max = INT_MIN;
+    for (int i = 0; i < pnum; i++) {
+      close(pipefd[1]); // Close write end of the pipe
+      struct MinMax local_min_max;
+      read(pipefd[0], &local_min_max, sizeof(struct MinMax));
+      close(pipefd[0]); // Close read end of the pipe
+      if (local_min_max.min < min_max.min) min_max.min = local_min_max.min;
+      if (local_min_max.max > min_max.max) min_max.max = local_min_max.max;
+    }
   }
 
   struct timeval finish_time;
@@ -151,5 +174,10 @@ int main(int argc, char **argv) {
   printf("Max: %d\n", min_max.max);
   printf("Elapsed time: %fms\n", elapsed_time);
   fflush(NULL);
+
+  if (!with_files) {
+    free(pipefd);
+  }
+
   return 0;
 }
