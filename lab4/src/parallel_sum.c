@@ -1,15 +1,10 @@
-#include <ctype.h>
-#include <limits.h>
-#include <string.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include <pthread.h>
 #include <getopt.h>
-
-#include "utils.h"
 
 struct SumArgs {
   int *array;
@@ -19,9 +14,7 @@ struct SumArgs {
 
 int Sum(const struct SumArgs *args) {
   int sum = 0;
-  for (int i = args->begin; i < args->end; ++i) {
-    sum += args->array[i];
-  }  
+  // TODO: your code here 
   return sum;
 }
 
@@ -34,7 +27,8 @@ int main(int argc, char **argv) {
   uint32_t threads_num = 0;
   uint32_t array_size = 0;
   uint32_t seed = 0;
-  while(true) {
+  pthread_t threads[threads_num];
+while(true) {
     int current_optind = optind ? optind : 1;
     static struct option options[] = {
       {"threads_num", required_argument, 0, 0},
@@ -51,17 +45,17 @@ int main(int argc, char **argv) {
     case 0:
       switch (option_index)
       {
-      case 0:
-        threads_num = atoi(optarg);
-        break;
-      case 1:
-        seed = atoi(optarg);
-        break;
-      case 2:
-        array_size = atoi(optarg);
-        break;
-      default:
-      printf("Index %d is out of options\n", option_index);
+        case 0:
+          threads_num = atoi(optarg);
+          break;
+        case 1:
+          seed = atoi(optarg);
+          break;
+        case 2:
+          array_size = atoi(optarg);
+          break;
+        default:
+        printf("Index %d is out of options\n", option_index);
       }
       break;
     case '?':
@@ -70,9 +64,6 @@ int main(int argc, char **argv) {
       printf("getopt returned character code 0%o?\n", c);
     }
   }
-  
-  pthread_t threads[threads_num];
-
   /*
    * TODO:
    * your code here
@@ -80,7 +71,6 @@ int main(int argc, char **argv) {
    */
 
   int *array = malloc(sizeof(int) * array_size);
-  GenerateArray(array, array_size, seed);
 
   struct SumArgs args[threads_num];
   for (uint32_t i = 0; i < threads_num; i++) {
@@ -98,6 +88,7 @@ int main(int argc, char **argv) {
   }
 
   free(array);
-  printf("Seed: %d, Total: %d\n", seed, total_sum);
+  printf("threads_num %d, seed: %d, array_size: %d", threads_num, seed, array_size);
+//  printf("Total: %d\n", total_sum);
   return 0;
 }
