@@ -1,4 +1,3 @@
-
 /* Program to display address information about the process */
 /* Adapted from Gray, J., program 1.4 */
 #include <stdio.h>
@@ -8,7 +7,7 @@
 #include <unistd.h>
 
 /* Below is a macro definition */
-#define SHW_ADR(ID, I) (printf("ID %s \t is at virtual address: %8X\n", ID, &I))
+#define SHW_ADR(ID, I) (printf("ID %s \tis at virtual address: %8X\n", ID, &I))
 
 extern int etext, edata, end; /* Global variables for process
                                  memory */
