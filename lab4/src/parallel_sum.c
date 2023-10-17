@@ -6,6 +6,8 @@
 #include <pthread.h>
 #include <getopt.h>
 
+#include "utils.h"
+
 struct SumArgs {
   int *array;
   int begin;
@@ -14,21 +16,22 @@ struct SumArgs {
 
 int Sum(const struct SumArgs *args) {
   int sum = 0;
-  // TODO: your code here 
+  for (int i = args->begin; i < args->end; ++i) {
+    sum += args->array[i];
+  }
   return sum;
 }
 
 void *ThreadSum(void *args) {
   struct SumArgs *sum_args = (struct SumArgs *)args;
-  return (void *)(size_t)Sum(sum_args);
+  return (void *)(size_t)Sum(sum_args); 
 }
 
 int main(int argc, char **argv) {
   uint32_t threads_num = 0;
   uint32_t array_size = 0;
   uint32_t seed = 0;
-  pthread_t threads[threads_num];
-while(true) {
+  while(true) {
     int current_optind = optind ? optind : 1;
     static struct option options[] = {
       {"threads_num", required_argument, 0, 0},
@@ -64,17 +67,18 @@ while(true) {
       printf("getopt returned character code 0%o?\n", c);
     }
   }
-  /*
-   * TODO:
-   * your code here
-   * Generate array here
-   */
+  pthread_t threads[threads_num];
 
   int *array = malloc(sizeof(int) * array_size);
+  GenerateArray(array, array_size, seed);
 
   struct SumArgs args[threads_num];
+  args->array = array;
+  args->begin = 0;
+  args->end = array_size;
   for (uint32_t i = 0; i < threads_num; i++) {
-    if (pthread_create(&threads[i], NULL, ThreadSum, (void *)&args)) {
+    bool status = pthread_create(&threads[i], NULL, ThreadSum, (void *)(&args));
+    if (status) {
       printf("Error: pthread_create failed!\n");
       return 1;
     }
@@ -88,7 +92,6 @@ while(true) {
   }
 
   free(array);
-  printf("threads_num %d, seed: %d, array_size: %d", threads_num, seed, array_size);
-//  printf("Total: %d\n", total_sum);
+  printf("Total: %d\n", total_sum / threads_num);
   return 0;
 }
