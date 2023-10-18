@@ -15,6 +15,9 @@
 #include "find_min_max.h"
 #include "utils.h"
 
+void child_slayer(pid_t child) {
+    kill(child, SIGKILL);
+}
 
 int main(int argc, char **argv) {
     int seed = -1;

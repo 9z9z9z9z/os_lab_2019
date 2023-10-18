@@ -10,6 +10,9 @@ process_memory :
 parallel_sum : utils.o
 	$(CC) -o parallel_sum utils.o parallel_sum.c -lpthread
 
+find_min_max.o : find_min_max.h
+	$(CC) -o find_min_max.o -c find_min_max.c $(CFLAGS)
+
 utils.o : utils.h
 	$(CC) -o utils.o -c utils.c $(CFLAGS)
 
