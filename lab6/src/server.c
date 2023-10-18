@@ -18,7 +18,6 @@ struct FactorialArgs {
   uint64_t end;
   uint64_t mod;
 };
-
 uint64_t MultModulo(uint64_t a, uint64_t b, uint64_t mod) {
   uint64_t result = 0;
   a = a % mod;
@@ -28,15 +27,20 @@ uint64_t MultModulo(uint64_t a, uint64_t b, uint64_t mod) {
     a = (a * 2) % mod;
     b /= 2;
   }
-
   return result % mod;
 }
 
 uint64_t Factorial(const struct FactorialArgs *args) {
   uint64_t ans = 1;
-
-  // TODO: your code here
-
+  int tmp;
+  for (int i = args->begin + 1; i < args->end + 1; ++i) {
+      tmp = (i * ans) % args->mod;
+      if (tmp != 0) {
+        ans = tmp; 
+      } else {
+        ans = 1;
+      }
+  }  
   return ans;
 }
 
@@ -159,22 +163,20 @@ int main(int argc, char **argv) {
       struct FactorialArgs args[tnum];
       for (uint32_t i = 0; i < tnum; i++) {
         // TODO: parallel somehow
-        args[i].begin = 1;
-        args[i].end = 1;
+        args[i].begin = begin;
+        args[i].end = end;
         args[i].mod = mod;
-
         if (pthread_create(&threads[i], NULL, ThreadFactorial,
                            (void *)&args[i])) {
           printf("Error: pthread_create failed!\n");
           return 1;
         }
       }
-
       uint64_t total = 1;
       for (uint32_t i = 0; i < tnum; i++) {
         uint64_t result = 0;
         pthread_join(threads[i], (void **)&result);
-        total = MultModulo(total, result, mod);
+        total = Factorial(args);
       }
 
       printf("Total: %llu\n", total);
@@ -187,7 +189,6 @@ int main(int argc, char **argv) {
         break;
       }
     }
-
     shutdown(client_fd, SHUT_RDWR);
     close(client_fd);
   }
