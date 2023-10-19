@@ -11,6 +11,7 @@
 #define SADDR struct sockaddr
 
 int main(int argc, char *argv[]) {
+  printf("1");
   int servPort = -1;
   int bufferSize = -1;
   int c = 2;

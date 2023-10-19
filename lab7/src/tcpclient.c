@@ -14,7 +14,7 @@
 int main(int argc, char *argv[]) {
   int servPort = -1;
   int bufferSize = -1;
-  char *IP = "127.0.0.1";
+  char *IP = "0.0.0.0";
   int c = 2;
   while (c != -1) {
     int current_optind = optind ? optind : 1;
@@ -24,18 +24,15 @@ int main(int argc, char *argv[]) {
                                       {0, 0, 0, 0}};
     int option_index = 0;
     c = getopt_long(argc, argv, "", options, &option_index);
-    printf(c);
     switch (c) {
       case 0:
         switch (option_index)
         {
           case 0:
             servPort = atoi(optarg);
-            printf(servPort);
             break;
           case 1:
             bufferSize = atoi(optarg);
-            printf(bufferSize);
             break;
           default:
             printf("Index %d is out of options\n", option_index);

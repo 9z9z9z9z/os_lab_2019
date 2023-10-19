@@ -27,14 +27,17 @@ udp : clientUDP serverUDP
 run_tcp :
 	./serverTCP --SERV_PORT $(PORT_TCP) --BUFSIZE $(BUFSIZE) &
 
+run_udp :
+	./serverUDP --SERV_PORT $(PORT_UDP) --BUFSIZE $(BUFSIZE) &
+
 debug : 
 	gdb ./clientTCP
 
 run_client_tcp : 
 	./clientTCP --SERV_PORT $(PORT_TCP) --BUFSIZE $(BUFSIZE) 
 
-run_udp :
-	./serverUDP --SERV_PORT $(PORT_UDP) --BUFSIZE $(BUFSIZE) &
+run_client_udp : 
+	./clientUDP --SERV_PORT $(PORT_UDP) --BUFSIZE $(BUFSIZE)
 
 all : udp tcp
 
