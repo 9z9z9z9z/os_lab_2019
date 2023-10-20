@@ -6,21 +6,18 @@
 
 int main() {
     pid_t child_pid = fork();
-
     if (child_pid < 0) {
         perror("Fork failed");
         exit(1);
     }
     if (child_pid == 0) {
-        // Это код дочернего процесса
         printf("Child process is running.\n");
-        sleep(5); // Дочерний процесс ждет 2 секунды
+        sleep(20); 
         printf("Child process is exiting.\n");
     } else {
-        // Это код родительского процесса
         printf("Parent process is running.\n");
         printf("Parent process is exiting without waiting for the child.\n");
-        waitpid(child_pid, NULL, 0); // Ожидание завершения дочернего процесса
+        exit(0);
     }
     return 0;
 }

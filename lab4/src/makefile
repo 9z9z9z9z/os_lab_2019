@@ -25,5 +25,7 @@ zombie :
 zombie_correct : 
 	${CC} -o zombie_correct zombie_correct.c $(CFLAGS)
 
+all : zombie_correct zombie debug_parallel_sum utils.o find_min_max.o parallel_sum parallel_min_max
+
 clear : 
 	rm utils.o find_min_max.o parallel_min_max zombie_correct zombie process_memory parallel_sum
