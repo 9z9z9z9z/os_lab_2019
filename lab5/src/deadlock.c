@@ -21,7 +21,7 @@ void *thread2() {
     pthread_mutex_lock(&mutex2);
     printf("Thread 2: started\n");
     sleep(1); 
-    pthread_mutex_lock(&mutex3);
+    // pthread_mutex_lock(&mutex3);
     printf("Thread 2: ended\n");
     pthread_mutex_unlock(&mutex3);
     pthread_mutex_unlock(&mutex2);
@@ -42,16 +42,16 @@ void *thread3() {
 int main() {
     pthread_t t1, t2, t3;
     
-    if (pthread_create(&t1, NULL, thread1, NULL) != 0) {
+    if (pthread_create(&t1, NULL, thread1, NULL)) {
         perror("pthread_create");
         return 1;
     }
 
-    if (pthread_create(&t2, NULL, thread2, NULL) != 0) {
+    if (pthread_create(&t2, NULL, thread2, NULL)) {
         perror("pthread_create");
         return 1;
     }
-    if (pthread_create(&t3, NULL, thread3, NULL) != 0) {
+    if (pthread_create(&t3, NULL, thread3, NULL)) {
         perror("pthread_create");
         return 1;
     }
